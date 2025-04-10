@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finalizar Pedido - Code & Grana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: #00ff88;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .form-container {
+      background-color: #111;
+      padding: 40px;
+      border-radius: 10px;
+      border: 1px solid #00ff88;
+      width: 100%;
+      max-width: 500px;
+    }
+    .btn-submit {
+      background: linear-gradient(to right, #00ff88, #00ffc3);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      width: 100%;
+    }
+    .btn-submit:hover {
+      opacity: 0.9;
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2 class="text-center mb-4">Complete seu pedido</h2>
+    <form id="pedidoForm">
+      <input type="hidden" id="produtoSelecionado">
+      <div class="mb-3">
+        <label for="nome" class="form-label">Nome</label>
+        <input type="text" class="form-control" id="nome" required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <input type="email" class="form-control" id="email" required>
+      </div>
+      <div class="mb-3">
+        <label for="whatsapp" class="form-label">WhatsApp</label>
+        <input type="text" class="form-control" id="whatsapp" required>
+      </div>
+      <button type="submit" class="btn btn-submit">Enviar e Pagar</button>
+    </form>
+    <div id="mensagem" class="mt-3 text-center"></div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const produto = urlParams.get('produto');
+    document.getElementById('produtoSelecionado').value = produto;
+
+    document.getElementById('pedidoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const whatsapp = document.getElementById('whatsapp').value;
+
+      fetch('https://seu-webhook-aqui.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, email, whatsapp, produto })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.pagamento_url) {
+          window.location.href = data.pagamento_url;
+        } else {
+          document.getElementById('mensagem').innerHTML = '<p class="text-danger">Erro ao redirecionar para o pagamento.</p>';
+        }
+      })
+      .catch(err => {
+        document.getElementById('mensagem').innerHTML = '<p class="text-danger">Erro na conexão com o servidor.</p>';
+      });
+    });
+  </script>
+</body>
+</html>
